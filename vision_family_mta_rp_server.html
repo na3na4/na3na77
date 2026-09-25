@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISION FAMILY - SAMP / RP Server</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Cairo for Arabic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ef4444;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dc2626;
+        }
+        .glow-red {
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+        }
+        .bg-glass {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#0b0f19] text-gray-100">
+
+    <!-- Authentication Modal / View -->
+    <div id="auth-container" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+        <div class="bg-[#111827] border border-red-600/50 rounded-2xl p-8 max-w-md w-full glow-red shadow-2xl relative">
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-600 to-rose-700 p-4 rounded-full shadow-lg border-2 border-red-400">
+                <i class="fa-solid fa-shield-halved text-3xl text-white"></i>
+            </div>
+            <div class="text-center mt-6 mb-8">
+                <h1 class="text-3xl font-black text-white tracking-wider glow-text">VISION FAMILY</h1>
+                <p class="text-xs text-red-400 mt-1 uppercase font-semibold">SAMP Roleplay Server Portal</p>
+            </div>
+            
+            <div id="auth-error" class="hidden mb-4 p-3 bg-red-950/80 border border-red-600 rounded-xl text-red-200 text-sm text-center"></div>
+
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2"><i class="fa-solid fa-user text-red-500 ml-2"></i>اسم المستخدم في اللعبة (Username)</label>
+                    <input type="text" id="username-input" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition" placeholder="مثال: Player_Morocco">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2"><i class="fa-solid fa-key text-red-500 ml-2"></i>كلمة المرور (Password)</label>
+                    <input type="password" id="password-input" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-600/30 transition transform active:scale-95">
+                    <i class="fa-solid fa-right-to-bracket ml-2"></i>دخول / تسجيل حساب جديد
+                </button>
+            </form>
+            <p class="text-center text-xs text-gray-500 mt-6">يتم حفظ الحسابات تلقائياً محلياً في متصفحك لضمان تجربة سلسة.</p>
+        </div>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header id="main-header" class="hidden fixed top-0 left-0 right-0 z-40 bg-glass border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <button onclick="toggleSidebar()" class="bg-red-600/20 hover:bg-red-600/40 text-red-500 border border-red-600/40 p-2.5 rounded-xl transition focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center space-x-2 space-x-reverse cursor-pointer" onclick="showHome()">
+                <div class="bg-red-600 text-white p-2 rounded-xl font-bold shadow-md shadow-red-600/50">
+                    <i class="fa-solid fa-v text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="font-black text-lg tracking-wider text-white glow-text leading-none">VISION FAMILY</h2>
+                    <span class="text-[10px] text-red-400 font-semibold">SAMP RP COMMUNITY</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <div class="hidden sm:flex items-center space-x-2 space-x-reverse bg-gray-900/80 border border-gray-800 px-3 py-1.5 rounded-xl">
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-xs text-gray-300 font-medium">مرحباً، <strong id="user-display-name" class="text-red-400"></strong> <span id="user-role-badge" class="mr-1 text-[10px] px-2 py-0.5 rounded-full bg-red-600 text-white font-bold"></span></span>
+            </div>
+            <button onclick="logoutUser()" class="bg-gray-800 hover:bg-red-950/60 text-gray-300 hover:text-red-400 border border-gray-700 hover:border-red-600/50 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 space-x-reverse">
+                <i class="fa-solid fa-power-off ml-1"></i>خروج
+            </button>
+        </div>
+    </header>
+
+    <!-- Sidebar / Drawer -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+    <aside id="sidebar" class="fixed top-0 right-0 bottom-0 z-50 w-80 bg-[#111827] border-l border-gray-800 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-gray-800 flex items-center justify-between bg-[#0b0f19]/50">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <div class="bg-red-600 text-white p-1.5 rounded-lg text-sm">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </div>
+                <span class="font-bold text-white text-base">قائمة التنقل</span>
+            </div>
+            <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2 rounded-lg transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <!-- Home / Dashboard Link -->
+            <button onclick="showHome(); toggleSidebar();" class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-red-600/10 text-gray-200 hover:text-red-400 transition font-semibold text-sm">
+                <span class="flex items-center"><i class="fa-solid fa-house text-red-500 w-6 ml-2"></i>الرئيسية (Dashboard)</span>
+                <i class="fa-solid fa-chevron-left text-xs text-gray-500"></i>
+            </button>
+
+            <!-- Admin Panel Button (Visible ONLY to user: anw4aar77) -->
+            <div id="sidebar-admin-section" class="hidden">
+                <button onclick="showAdminPanel(); toggleSidebar();" class="w-full flex items-center justify-between p-3 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/40 transition font-bold text-sm">
+                    <span class="flex items-center"><i class="fa-solid fa-shield-dog text-red-500 w-6 ml-2"></i>لوحة التحكم (Panel)</span>
+                    <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Owner</span>
+                </button>
+            </div>
+
+            <!-- About Us / Discord Link -->
+            <a href="https://discord.gg/qDujVnNkCy" target="_blank" class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-indigo-600/10 text-gray-200 hover:text-indigo-400 transition font-semibold text-sm">
+                <span class="flex items-center"><i class="fa-brands fa-discord text-indigo-500 w-6 ml-2"></i>من نحن & Discord</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500"></i>
+            </a>
+
+            <!-- Rules Dropdown Section -->
+            <div class="border-t border-gray-800 pt-2 mt-2">
+                <button onclick="toggleRulesDropdown()" class="w-full flex items-center justify-between p-3 rounded-xl bg-gray-900/60 hover:bg-red-600/15 text-white transition font-bold text-sm">
+                    <span class="flex items-center"><i class="fa-solid fa-book text-red-500 w-6 ml-2"></i>قوانين السيرفر (Rules)</span>
+                    <i id="rules-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+                </button>
+
+                <!-- Subcategories of Rules -->
+                <div id="rules-submenu" class="hidden pr-4 pl-1 py-2 space-y-1 mt-1 border-r-2 border-red-600/40">
+                    <button onclick="loadRuleSection('rp')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">1. قوانين رول بلاي (RP)</button>
+                    <button onclick="loadRuleSection('discord')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">2. قوانين ديسكورد (Discord Rules)</button>
+                    <button onclick="loadRuleSection('language')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">3. لغة روب بلاي (RP Language)</button>
+                    <button onclick="loadRuleSection('robbery')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">4. قوانين سرقة روب بلاي (Grissage)</button>
+                    <button onclick="loadRuleSection('store_fleeca')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">5. السطو والسرقات (Store / Fleeca / Bank)</button>
+                    <button onclick="loadRuleSection('illegal')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">6. قوانين خارج قانون (Illegal RP)</button>
+                    <button onclick="loadRuleSection('safezone')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">7. مناطق أمن روب بلاي (Safe Zone)</button>
+                    <button onclick="loadRuleSection('legal')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">8. قوانين قانوني (Legal RP)</button>
+                    <button onclick="loadRuleSection('looting')" class="w-full text-right py-2 px-3 rounded-lg hover:bg-red-600/20 text-gray-300 hover:text-red-400 text-xs font-semibold transition">9. قوانين نهب (Looting Rules)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-800 bg-[#0b0f19]/80 text-center">
+            <p class="text-xs text-gray-500 font-semibold">VISION FAMILY SAMP RP © 2026</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main id="main-content-container" class="hidden flex-1 pt-20 pb-12 px-4 sm:px-8 max-w-7xl mx-auto w-full">
+        <!-- Dynamic content injected here -->
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const rulesData = {
+            rp: {
+                title: "قوانين رول بلاي (RP Rules)",
+                subtitle: "القوانين الأساسية لضمان تجربة Roleplay احترافية وواقعية داخل سيرفر Vision Family",
+                items: [
+                    { name: "Mass RP", desc: "اعتبر الأماكن العامة ومناطق العصابات مأهولة دائمًا بمدنيين أو رجال أمن حتى لو لم تكن ظاهرة في اللعبة." },
+                    { name: "Power Gaming", desc: "ممنوع تجاهل تأثير الإصابات والأحداث على شخصيتك، كالسقوط من مكان مرتفع ومتابعة اللعب بشكل طبيعي." },
+                    { name: "Meta Gaming", desc: "ممنوع استخدام معلومات من خارج الـRP (Discord، يوتيوب، البث المباشر) داخل أحداث اللعب." },
+                    { name: "Troll", desc: "يمنع استفزاز أو إزعاج اللاعبين عمدًا دون هدف RP، مثل استفزاز الشرطة فقط للهروب منها." },
+                    { name: "Red Zone", desc: "المناطق الخطرة كمناطق العصابات تستوجب حذرًا أكبر وتقديرًا حقيقيًا لحياة شخصيتك." },
+                    { name: "Safe Zone", desc: "أماكن آمنة يُمنع فيها أي عمل إجرامي أو تخريبي، مثل المستشفى، مركز الشرطة، الميكانيكي، معرض السيارات، والـCity Hall." },
+                    { name: "Free Kill", desc: "يمنع قتل أي لاعب دون سبب أو سيناريو RP يبرر ذلك." },
+                    { name: "Revenge Kill", desc: "يمنع الانتقام من قاتلك بعد الموت، لأن شخصيتك لا تتذكر أحداث موتها." },
+                    { name: "Mixte RP | HRP", desc: "يمنع خلط معلومات أو تصرفات من خارج اللعبة مع أحداث RP أثناء اللعب." },
+                    { name: "No Fear", desc: "يجب إظهار الخوف عند التعرض لتهديد حقيقي، كمواجهة شخص مسلح دون سبب منطقي." },
+                    { name: "Car Kill", desc: "يمنع استخدام السيارة لدهس أو إيذاء اللاعبين بشكل متعمد وغير واقعي." },
+                    { name: "Force RP", desc: "يمنع إجبار لاعب آخر على تنفيذ فعل أو نتيجة معينة دون إتاحة فرصة له للتفاعل أو الرد." },
+                    { name: "Win RP | Crying", desc: "يمنع اللعب بهدف الفوز بأي ثمن، ويمنع اتهام الآخرين بالغش لمجرد خسارة السيناريو." },
+                    { name: "Back to Safe Zone", desc: "يمنع الهروب إلى منطقة آمنة أثناء مطاردة أو مواجهة لتفادي العواقب." },
+                    { name: "Back to Red Zone", desc: "يمنع العودة إلى منطقة خطرة بعد الهروب منها لاستئناف المواجهة أو تفادي الشرطة." },
+                    { name: "Legal | Illegal RP", desc: "يجب احترام هوية شخصيتك وقصتها؛ فلا يجوز لشخصية قانونية القيام بأعمال إجرامية دون مبرر RP منطقي." },
+                    { name: "Bug | Glitch Abuse", desc: "يمنع استغلال أي خلل أو ثغرة في اللعبة لتحقيق منفعة أو الحصول على أموال أو موارد بطريقة غير مشروعة." },
+                    { name: "Cohérence RP", desc: "يجب أن تتوافق تصرفات شخصيتك مع قصتها وعمرها وجنسيتها وطبيعتها الشخصية." },
+                    { name: "ALT+F4", desc: "يمنع الخروج من اللعبة للتهرب من عقوبة أو مواجهة أو سيناريو RP جارٍ." },
+                    { name: "Just Talking", desc: "يجب إغلاق الميكروفون عند عدم التحدث لتفادي الضوضاء والتشويش على اللاعبين الآخرين." },
+                    { name: "Language RP", desc: "يجب استخدام مصطلحات RP المناسبة، وتجنب مصطلحات خارج اللعبة مثل 'Lag' أو 'Crash' أثناء السيناريو." },
+                    { name: "Toxic RP", desc: "يمنع الإهانة أو الاستفزاز المفرط للاعبين، خصوصًا عند استغلال ضعف أو سقوط شخصية أخرى." },
+                    { name: "Drive-By", desc: "يمنع إطلاق النار من داخل السيارة بطريقة غير مسموحة أو غير واقعية." },
+                    { name: "No Relation RP", desc: "يمنع التدخل في سيناريو أو نزاع لا علاقة لشخصيتك به دون سبب RP منطقي." },
+                    { name: "Refuse RP", desc: "يمنع رفض أو تجاهل سيناريو RP مشروع، مثل تجاهل الشرطة أو رفض التفاعل مع إجراءاتها دون سبب." },
+                    { name: "Bunny Jump", desc: "يمنع القفز المستمر أثناء الجري بهدف زيادة السرعة أو التحرك بطريقة غير واقعية." },
+                    { name: "CarJacking", desc: "يمنع سرقة مركبة لاعب آخر بالقوة أو إخراجه منها دون سبب RP مناسب." },
+                    { name: "Stress RP", desc: "يجب إظهار الخوف والحذر عند العودة إلى مكان شهد حادثة خطيرة أو مواجهة سابقة، وعدم التصرف وكأن شيئًا لم يحدث." },
+                    { name: "Vehicle Damage", desc: "يمنع إلحاق ضرر متعمد ومفرط بمركبات الآخرين بطريقة غير واقعية، كالاصطدام المتكرر لإسقاط صاحبها." },
+                    { name: "Cheats | Hacks", desc: "استخدام أي برامج غش أو هاك أو أدوات تمنح أفضلية غير عادلة ممنوع منعًا باتًا، والعقوبة حظر دائم (Permanent Ban)." }
+                ]
+            },
+            discord: {
+                title: "قوانين ديسكورد (Discord Rules)",
+                subtitle: "الالتزام بقوانين مجتمع الديسكورد الرسمي للسيرفر",
+                items: [
+                    { ar: "يجب الالتزام بشروط استخدام Discord، وأي مخالفة قد تؤدي إلى حظر دائم", fr: "Le respect des Conditions d’Utilisation de Discord est obligatoire Toute violation peut entraîner un bannissement permanent" },
+                    { ar: "يملك طاقم الإدارة الكلمة الأخيرة في تحديد العقوبات وتطبيقها وفقًا للحالة", fr: "Le Staff possède le dernier mot concernant les sanctions et leur application selon la situation" },
+                    { ar: "يجب احترام جميع أعضاء السيرفر، بما في ذلك الإدارة، وعدم التعامل معهم بطريقة مسيئة", fr: "Tous les membres du serveur y compris le Staff doivent être respectés" },
+                    { ar: "يمنع الإفراط في السمية والاستفزاز أو تحويل النقاشات إلى مشاكل شخصية", fr: "La toxicité les provocations excessives et les comportements visant à créer des conflits sont interdits" },
+                    { ar: "يمنع خطاب الكراهية والعنصرية والتمييز على أساس الجنس أو الأصل أو أي صفة شخصية", fr: "Les discours haineux le racisme et toute forme de discrimination basée sur le sexe l’origine ou toute autre caractéristique personnelle sont interdits" },
+                    { ar: "يمنع تقديم بلاغات أو طلبات مساعدة كاذبة بقصد إضاعة وقت الإدارة أو إزعاجها", fr: "Les faux signalements ou demandes d’aide destinés à faire perdre du temps au Staff sont interdits" },
+                    { ar: "يجب حل الخلافات والمشاكل الشخصية بشكل خاص، ويفضل عبر الرسائل الخاصة، دون إزعاج السيرفر", fr: "Les conflits et problèmes personnels doivent être réglés en privé notamment via les messages privés" },
+                    { ar: "يمنع الترويج لسيرفرات أو خدمات أخرى داخل السيرفر أو عبر الرسائل الخاصة دون إذن الإدارة", fr: "Toute publicité pour d’autres serveurs ou services directement ou par messages privés est interdite sans autorisation du Staff" },
+                    { ar: "يمنع إرسال أو نشر محتوى دموي أو غير مناسب أو إباحي، سواء في القنوات أو الرسائل الخاصة", fr: "L’envoi ou la publication de contenu gore NSFW ou pornographique est interdit que ce soit dans le serveur ou en messages privés" },
+                    { ar: "يمنع نشر صور أو رسائل خاصة أو معلومات أو تسجيلات تخص أي شخص دون الحصول على إذنه", fr: "Il est interdit de publier des photos messages privés informations ou enregistrements concernant une personne sans son autorisation" },
+                    { ar: "يمنع نشر السمية أو افتعال المشاكل في القنوات الصوتية العامة، ويجب الحفاظ على جو محترم", fr: "La toxicité et les provocations sont interdites dans les salons vocaux publics Une attitude respectueuse est obligatoire" },
+                    { ar: "يمكن لصاحب القناة الصوتية الخاصة أو المغلقة تحديد قوانينها الخاصة، ما دامت لا تخالف قوانين السيرفر", fr: "Le propriétaire d’un salon vocal privé ou verrouillé peut définir ses propres règles tant qu’elles respectent le règlement du serveur" },
+                    { ar: "يسمح باستخدام Voice Changer أو Soundboard داخل قناتك الخاصة، ويمنع استخدامها لإزعاج أو تخريب القنوات الأخرى", fr: "Les Voice Changers et Soundboards sont autorisés dans votre salon privé mais interdits lorsqu’ils servent à déranger les autres salons" },
+                    { ar: "يمنع بث أو مشاركة محتوى دموي أو NSFW أو إباحي داخل القنوات الصوتية أو أثناء مشاركة الشاشة", fr: "Il est interdit de diffuser ou partager du contenu gore NSFW ou pornographique dans les salons vocaux ou via le partage d’écran" }
+                ]
+            },
+            language: {
+                title: "قوانين لغة روب بلاي (RP Language & Slang)",
+                subtitle: "استخدام المصطلحات المعتمدة داخل السيرفر وتجنب كسر الـRP",
+                introAr: "يجب استخدام مصطلحات الـRP المعتمدة داخل السيرفر، ويمنع استعمال مصطلحات HRP أو المصطلحات الخارجة عن إطار الـRP أثناء السيناريو.",
+                sanctionAr: "استعمال مصطلحات HRP عمدًا أثناء الـRP قد يؤدي إلى تحذير، عقوبة إدارية أو حظر حسب خطورة وتكرار المخالفة.",
+                dictionary: [
+                    { rp: "Lag", ar: "ازدحام في المدينة | تشويش", fr: "Embouteillage | perturbation" },
+                    { rp: "Cheat", ar: "سحر", fr: "Magie" },
+                    { rp: "Inventory", ar: "جيبك", fr: "Tes poches" },
+                    { rp: "Voice Bug", ar: "مشكلة في حلقك", fr: "Problème à la gorge" },
+                    { rp: "Crash", ar: "تسحّرت", fr: "Tu as disparu" },
+                    { rp: "Server", ar: "المدينة", fr: "La ville" },
+                    { rp: "Tlagit", ar: "تشردت | تسحّرت", fr: "Tu as disparu" },
+                    { rp: "Admins", ar: "الجنون | الكبار", fr: "Les anciens | les grands" },
+                    { rp: "Tbanit | Tbana", ar: "مشى ألاسكا | مشى يتبرد", fr: "Il est parti en Alaska | il est parti se rafraîchir" },
+                    { rp: "Admin kay Speci", ar: "جنون كيتفرجو فينا", fr: "Les anciens nous observent" },
+                    { rp: "Bots", ar: "سكان أصليون", fr: "Habitants de la ville" },
+                    { rp: "Restart Server", ar: "العاصفة", fr: "La tempête" },
+                    { rp: "Announcement Discord", ar: "الجريدة", fr: "Le journal" },
+                    { rp: "Rules Server", ar: "القوانين", fr: "Le règlement" },
+                    { rp: "Ktb f Chat", ar: "كتب في ورقة", fr: "Écrire sur une feuille" },
+                    { rp: "Mic", ar: "حلقك", fr: "Ta gorge" },
+                    { rp: "ID", ar: "سباط", fr: "Chaussure" },
+                    { rp: "AFK | Kharj Mn Server", ar: "ناعس", fr: "Il dort" },
+                    { rp: "Skin", ar: "اللباس", fr: "La tenue" },
+                    { rp: "Dkhlni Gang", ar: "أعطني Bandana", fr: "Donne-moi un bandana" },
+                    { rp: "Dkhlni Faction", ar: "أعطني Badge", fr: "Donne-moi un badge" },
+                    { rp: "Report", ar: "عيّط للجنون", fr: "Appelle les anciens" },
+                    { rp: "Discord", ar: "الراديو الكبير", fr: "La grande radio" },
+                    { rp: "Ticket", ar: "شكاية", fr: "Réclamation" }
+                ]
+            },
+            robbery: {
+                title: "قوانين سرقة روب بلاي (Grissage / Robbery Rules)",
+                subtitle: "Ces règles ont pour objectif de garantir un RP équitable et équilibré",
+                items: [
+                    { num: "1", ar: "يمنع استخدام الـGrissage أثناء المعارك، Block Wiping أو الـBrawls", fr: "Le Grissage est interdit pendant les fights Block Wiping et brawls" },
+                    { num: "2", ar: "في حالات الـFear RP، يصبح للاعب الذي يبادر بإشهار السلاح أو التصويب على لاعب آخر حق الـGrissage، ويجب توضيح التصويب بشكل واضح عند الحاجة", fr: "En situation de Fear RP le joueur qui sort ou vise en premier une arme obtient le droit au Grissage La visée doit être clairement visible lorsque nécessaire" },
+                    { num: "3", ar: "يمكن تطبيق الـGrissage عند وجود تفوق واضح في القوة، مثل شخصين يحملان Bats ضد لاعب واحد", fr: "Le Grissage peut être appliqué lorsqu’il existe un avantage évident en nombre ou en puissance par exemple 2 personnes avec des battes contre 1 joueur" },
+                    { num: "4", ar: "يمكن تطبيق الـGrissage عند مواجهة لاعب بسلاح قوي أو عند وجود تفوق واضح، مثل Katana ضد لاعب واحد أو سلاح ناري ضد لاعب واحد", fr: "Le Grissage peut être appliqué lorsqu’un joueur face à une arme puissante ou à un avantage évident comme un katana ou une arme à feu contre un seul joueur" },
+                    { num: "5", ar: "في حالة المواجهة، اللاعب الذي يسحب أو يرفع سلاحه أولًا يمتلك الأفضلية في الـRP، وفقًا لظروف السيناريو", fr: "Lors d’une confrontation le premier joueur qui sort ou lève son arme possède l’avantage RP selon le contexte de la scène" },
+                    { num: "6", ar: "عند تطبيق الـGrissage، يمكن اختيار 3 عناصر من الـInventory أو كامل الأموال النقدية (Cash) التي بحوزة اللاعب", fr: "Lors d’un Grissage vous pouvez choisir 3 objets de l’inventaire ou la totalité de l’argent liquide (Cash) détenu par le joueur" },
+                    { num: "7", ar: "يمكن تطبيق الـGrissage على لاعب بعد قتله، إذا كانت ظروف السيناريو تسمح بذلك ووفقًا للقواعد السابقة", fr: "Le Grissage peut être effectué après avoir tué un joueur si le contexte de la scène le permet et conformément aux règles précédentes" }
+                ],
+                general: "يمنع استخدام الـGrissage بشكل تعسفي أو بهدف استغلال اللاعبين؛ يجب أن يكون دائمًا مبنيًا على تفوق RP واضح ومنطقي."
+            },
+            store_fleeca: {
+                title: "قوانين السطو والسرقات (Store, Fleeca & Big Bank)",
+                subtitle: "Respectez toutes les conditions avant de commencer un braquage.",
+                stores: [
+                    {
+                        name: "STORE ROB (متجر)",
+                        members: "الحد الأدنى: عضوان (2)",
+                        weapons: "Minimum 1 Bat (يجب توفر Bat واحدة على الأقل)",
+                        vehicles: "السيارة إلزامية. الدراجات النارية ممنوعة، باستثناء الجهات المسموح لها.",
+                        hostages: "يُعتبر صاحب المتجر رهينة. يجب انتظار وصول الشرطة والتفاوض معها.",
+                        bans: "يمنع إطلاق النار على المتجر قبل وصول الشرطة، الهروب قبلها، أو استخدام ALT+F4.",
+                        reward: "يمكن الحصول على عناصر مقابل Safe Passage حسب نتيجة التفاوض."
+                    },
+                    {
+                        name: "FLEECA ROB (بنك فليكا)",
+                        members: "الحد الأدنى: 4 أعضاء",
+                        weapons: "Minimum 3 Bats أو سلاحين SD على الأقل",
+                        vehicles: "بحد أقصى سيارتان (2). الدراجات النارية ممنوعة.",
+                        hostages: "Minimum 2 otages (رهينتين على الأقل)",
+                        bans: "الالتزام بالشروط والانتظار وتجنب الثغرات.",
+                        reward: "سرقة ناجحة ونسبة مئوية من خزنة البنك."
+                    },
+                    {
+                        name: "BIG BANK ROB (البنك الكبير)",
+                        members: "الحد الأدنى: 8 أعضاء",
+                        weapons: "Minimum 4 Bats + 2 SD. بالنسبة للأسلحة الثقيلة، سلاح واحد يكفي.",
+                        vehicles: "بحد أقصى 3 سيارات. الدراجات النارية ممنوعة.",
+                        hostages: "Minimum 6 otages (6 رهائن على الأقل)",
+                        bans: "ممنوع كسر القواعد أو استغلال الثغرات.",
+                        reward: "أكبر عملية سطو مالية في المدينة مع مطاردة أمنية كبرى."
+                    }
+                ]
+            },
+            illegal: {
+                title: "قوانين خارج قانون (Illegal RP)",
+                subtitle: "قوانين العصابات والمافيات والأنشطة غير القانونية لضمان RP متوازن",
+                items: [
+                    "التحالفات ممنوعة، باستثناء الاتفاقات أو الصفقات المسموح بها بين المنظمات، وخارج حالات القتال.",
+                    "الـRed Zones هي فقط المناطق التابعة للمافيات والعصابات داخل المدينة. أي منطقة خارج المدينة لا تُعتبر Red Zone.",
+                    "عند عقد اجتماع مع Mafia، يجب أن يكون ممثل الـGang هو OG أو Co-OG. يمنع إرسال عضو عادي.",
+                    "أي قتال ضد Gang آخر بدون سبب RP منطقي ممنوع، وقد تتم معاقبة الطرفين.",
+                    "لا توجد قاعدة تسمح ببدء Fight لمجرد مرور 5 دقائق من الكلام. يجب امتلاك سبب RP قوي.",
+                    "يمنع تخريب خطة Gang آخر أو التدخل في عملية لمساعدته ضد الشرطة دون سبب RP.",
+                    "أي Gang يصل إلى حالة أو منطقة خاضعة لإجراء Remove سيتم إبعاده مباشرة.",
+                    "يمنع القيام بـPIT ضد سيارة شرطة أو Deputy بطريقة غير واقعية (العقوبة: Ban 48 ساعة).",
+                    "كل أسبوع، يجب على الـOG أو Co-OG إرسال القائمة الكاملة لأعضاء الـGang في تذكرة Support.",
+                    "يمنع اصطحاب شخص لا تثق به أو ليس عضوًا موثوقًا إلى اجتماعات الـMafia.",
+                    "الـStreet Fights مسموحة فقط عند وجود سبب RP قوي (مثل احتجاز عضو أو Grissage سابق).",
+                    "يجب أن يكون أعضاء الـGang نشطين في الأنشطة غير القانونية (سرقة، رهائن، إلخ).",
+                    "إذا تم حظر أكثر من 5 أعضاء من نفس الـGang، سيتم حذف الـGang مباشرة وحظر الـOG 48 ساعة.",
+                    "Mort RP: يُطبق عند كشف الأسرار، عدم احترام OG أو Mafia، السقوط في Red Zone، No Fear، أو مغادرة الـGang بلا سبب."
+                ]
+            },
+            safezone: {
+                title: "قوانين مناطق أمن روب بلاي (Safe Zones)",
+                subtitle: "Les Safe Zones sont des zones protégées où les Grissages et Fights sont interdits.",
+                locations: [
+                    "محطة القطار (Station)",
+                    "بنك Fleeca (Fleeca Bank)",
+                    "البنك الرئيسي (Bank)",
+                    "متجر Idlewood (Idlewood Store)",
+                    "الميكانيكي والميكانيكي غير القانوني (Mécano / Mécano Illégal)",
+                    "أماكن الوظائف (Jobs)",
+                    "مركز الشرطة (Police Department)",
+                    "المستشفى (Hospital)",
+                    "مقر الأخبار (News)",
+                    "نقاط بيع موارد الوظائف (Job Sell Points)",
+                    "مختبرات المخدرات العامة (Laboratoires de Drogue Publics - مختبرات العصابات المستقلة مستثناة)",
+                    "مركز الـSheriff (Sheriff Department)",
+                    "مركز سيارات الأجرة (Taxi Department)",
+                    "المتاجر المملوكة للاعبين (Stores appartenant aux joueurs)",
+                    "الشركات (Companies)"
+                ],
+                general: "يمنع بدء أي Fight أو Grissage أو أي تصرف عدواني داخل الـSafe Zone. كما يمنع استغلال الـSafe Zone للهروب من سيناريو RP أو لتجنب مواجهة بشكل متعمد."
+            },
+            legal: {
+                title: "قوانين قانوني روب بلاي (Legal RP Factions)",
+                subtitle: "Les membres des factions légales doivent toujours respecter un RP sérieux et professionnel.",
+                items: [
+                    "Professionalism: يجب تقديم RP نظيف وجاد واحترافي، وبما أنك عضو في فصيل قانوني، فإن الاحترام إلزامي في جميع الظروف.",
+                    "Uniform & Équipement: يجب ارتداء الزي الرسمي الخاص بوظيفتك واستخدام المعدات المناسبة لمنصبك فقط (الشرطة، الإسعاف، الـSheriff، إلخ).",
+                    "RP avec tous: يجب القيام بالـRP مع جميع اللاعبين، سواء كانوا قانونيين أو غير قانونيين، دون تفضيل جهة أو العمل سرًا لصالح طرف واحد.",
+                    "Use of Force: يجب أن يكون استخدام القوة مبررًا دائمًا ومتناسبًا مع الموقف. يجب تفضيل التحذير والتفاوض قبل القوة المفرطة. يمنع القتل بلا سبب.",
+                    "Communication: يجب أن تكون الاتصالات عبر Discord والراديو متوافقة مع الـRP وبطريقة احترافية. يمنع الـFlood والاتصالات HRP أثناء السيناريو.",
+                    "Reports & Arrests: يجب أن يكون أي اعتقال أو تدخل مبنيًا على أسباب RP صحيحة وأدلة منطقية (هوية، كاميرات، شهود).",
+                    "EMS Conduct: يجب على الـEMS التدخل في الوقت المناسب، والحفاظ على الحياد ودورهم الطبي، ويمتنع عليهم المشاركة في عمليات الشرطة بشكل مباشر.",
+                    "No Corruption: يمنع على أعضاء الفصائل القانونية التعاون بشكل غير قانوني مع المافيات أو العصابات أو استغلال المنصب إلا وفق التصاريح الخاصة بالسيرفر."
+                ]
+            },
+            looting: {
+                title: "قوانين نهب (Looting Rules)",
+                subtitle: "شروط وضوابط تفتيش ونهب اللاعبين داخل عالم RP",
+                items: [
+                    "1. Looting ممنوع منعًا باتًا لأي لاعب أن يقوم بأخذ أموال أو أسلحة أو أغراض لاعب آخر أثناء سيناريو RP دون سبب مشروع داخل القصة.",
+                    "2. يمنع تفتيش أو نهب أي شخص مصاب أو فاقد للوعي فقط من أجل الحصول على ممتلكاته دون مبرر واضح.",
+                    "3. يمنع Looting بعد إطلاق النار أو انتهاء الاشتباك مباشرة إذا لم يكن هناك سبب RP واضح يبرر التفتيش أو أخذ الممتلكات.",
+                    "4. يمنع أخذ جميع ممتلكات لاعب واحد وتركه دون أي شيء حتى لو كان التفتيش مسموحًا؛ يجب أخذ ما يخدم القصة فقط.",
+                    "5. يمنع Looting المدنيين العشوائيين في الشوارع أو الأماكن العامة دون وجود موقف RP متكامل ومبرر يسبقه تفاعل واضح.",
+                    "6. يمنع نهب لاعب تم قتله ثم العودة إلى مكان موته فقط من أجل أخذ أغراضه بعد انتهاء السيناريو.",
+                    "7. يمنع Looting الجثث في المناطق الخطرة بشكل متكرر بهدف جمع الأسلحة أو الأموال وتحويل العملية إلى مصدر ربح غير واقعي.",
+                    "8. يمنع أخذ أسلحة أو معدات الشرطة أو الإسعاف من شخص ساقط إلا إذا كان السيناريو يسمح بذلك بطريقة منطقية.",
+                    "9. يمنع Looting أعضاء العصابات بشكل جماعي لمجرد تفوق عدد اللاعبين دون سبب RP واضح.",
+                    "10. يمنع إجبار اللاعب على تسليم كل ما يملك دون وجود تهديد أو موقف RP مناسب.",
+                    "11. يمنع Looting أثناء وجود مسعفين أو شرطة في موقع الحادث بطريقة تستغل انشغالهم.",
+                    "12. يمنع أخذ المركبات أو محتوياتها باعتبارها Loot إلا إذا كان الاستيلاء جزءًا واضحًا من السيناريو ومسموحًا به.",
+                    "13. يمنع تفتيش لاعب ميت أو مصاب بشكل متكرر من أكثر من شخص لتجنب الفوضى والاستغلال.",
+                    "14. يمنع Looting بعد انتهاء المواجهة إذا لم يعد هناك تفاعل RP قائم بين الأطراف.",
+                    "15. يمنع استخدام أي ثغرة أو ميكانيكية في النظام لسحب أموال أو أغراض لاعب بطريقة غير واقعية.",
+                    "16. يمنع Looting اللاعبين الجدد أو غير المتمرسين واستغلال جهلهم بالقوانين للحصول على ممتلكاتهم.",
+                    "17. يمنع Looting من مناطق الإسعاف أو المستشفى أو مراكز الشرطة لأن هذه الأماكن تخضع لحماية خاصة.",
+                    "18. يمنع نقل ممتلكات لاعب إلى شخص آخر ثم نهبها بطريقة ملتوية لتجاوز قوانين Looting (التحايل يعامل كمخالفة مستقلة).",
+                    "19. يمنع Looting بهدف الانتقام أو العقوبة خارج إطار RP ولا يجوز استخدام ممتلكات اللاعب كوسيلة لإجباره على الخضوع لمشاكل شخصية.",
+                    "20. يجب أن يكون أي تفتيش أو أخذ غرض مرتبطًا بسبب RP واضح ومحترم. عند الشك، يفضل ترك الممتلكات وطلب رأي الإدارة."
+                ]
+            }
+        };
+
+        // Local storage helpers for Users & Roles Management
+        function getUsers() {
+            const users = localStorage.getItem('vision_family_users');
+            return users ? JSON.parse(users) : {};
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('vision_family_users', JSON.stringify(users));
+        }
+
+        function getUserRoles() {
+            const roles = localStorage.getItem('vision_family_roles');
+            return roles ? JSON.parse(roles) : {};
+        }
+
+        function saveUserRoles(roles) {
+            localStorage.setItem('vision_family_roles', JSON.stringify(roles));
+        }
+
+        function getCurrentUser() {
+            return localStorage.getItem('vision_family_current_user');
+        }
+
+        function setCurrentUser(username) {
+            if (username) {
+                localStorage.setItem('vision_family_current_user', username);
+            } else {
+                localStorage.removeItem('vision_family_current_user');
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value.trim();
+            const errorDiv = document.getElementById('auth-error');
+
+            if (!username || !password) {
+                errorDiv.textContent = "الرجاء إدخال اسم المستخدم وكلمة المرور.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            let users = getUsers();
+            let roles = getUserRoles();
+
+            if (users[username]) {
+                if (users[username] === password) {
+                    setCurrentUser(username);
+                    initApp();
+                } else {
+                    errorDiv.textContent = "كلمة المرور غير صحيحة لهذا الحساب المسجل مسبقاً.";
+                    errorDiv.classList.remove('hidden');
+                }
+            } else {
+                // Register new user
+                users[username] = password;
+                saveUsers(users);
+
+                // Assign default role 'Member' automatically for any new user except Owner if registered manually
+                if (username === 'anw4aar77') {
+                    roles[username] = 'Owner';
+                } else if (!roles[username]) {
+                    roles[username] = 'Member';
+                }
+                saveUserRoles(roles);
+
+                setCurrentUser(username);
+                initApp();
+            }
+        }
+
+        function logoutUser() {
+            setCurrentUser(null);
+            location.reload();
+        }
+
+        function initApp() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('main-content-container').classList.add('hidden');
+            } else {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('main-header').classList.remove('hidden');
+                document.getElementById('main-content-container').classList.remove('hidden');
+                document.getElementById('user-display-name').textContent = currentUser;
+
+                // Ensure anw4aar77 always has Owner role in storage
+                let roles = getUserRoles();
+                if (currentUser === 'anw4aar77') {
+                    roles[currentUser] = 'Owner';
+                    document.getElementById('sidebar-admin-section').classList.remove('hidden');
+                } else {
+                    if (!roles[currentUser]) {
+                        roles[currentUser] = 'Member';
+                        saveUserRoles(roles);
+                    }
+                    document.getElementById('sidebar-admin-section').classList.add('hidden');
+                }
+                saveUserRoles(roles);
+
+                // Display role badge in header
+                const userRole = roles[currentUser] || 'Member';
+                const badgeEl = document.getElementById('user-role-badge');
+                badgeEl.textContent = userRole;
+                if(userRole === 'Owner') badgeEl.className = "mr-1 text-[10px] px-2 py-0.5 rounded-full bg-red-600 text-white font-bold";
+                else if(userRole === 'Dev') badgeEl.className = "mr-1 text-[10px] px-2 py-0.5 rounded-full bg-purple-600 text-white font-bold";
+                else if(userRole === 'Staff') badgeEl.className = "mr-1 text-[10px] px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold";
+                else if(userRole === 'Whitelisted') badgeEl.className = "mr-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold";
+                else badgeEl.className = "mr-1 text-[10px] px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 font-bold";
+
+                showHome();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function toggleRulesDropdown() {
+            const submenu = document.getElementById('rules-submenu');
+            const chevron = document.getElementById('rules-chevron');
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                submenu.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // Admin Panel Function (Only accessible by anw4aar77)
+        function showAdminPanel() {
+            const currentUser = getCurrentUser();
+            if (currentUser !== 'anw4aar77') return;
+
+            const container = document.getElementById('main-content-container');
+            const users = getUsers();
+            const roles = getUserRoles();
+
+            let usersTableHtml = '';
+            for (let usr in users) {
+                let currentRole = roles[usr] || 'Member';
+                usersTableHtml += `
+                    <tr class="hover:bg-gray-900/50 transition">
+                        <td class="p-3 font-bold text-white flex items-center space-x-2 space-x-reverse">
+                            <i class="fa-solid fa-user-circle text-red-500 text-lg"></i>
+                            <span>${usr}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold 
+                                ${currentRole === 'Owner' ? 'bg-red-600 text-white' : 
+                                  currentRole === 'Dev' ? 'bg-purple-600 text-white' : 
+                                  currentRole === 'Staff' ? 'bg-blue-600 text-white' : 
+                                  currentRole === 'Whitelisted' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300'}">
+                                ${currentRole}
+                            </span>
+                        </td>
+                        <td class="p-3">
+                            <select onchange="changeUserRole('${usr}', this.value)" class="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-red-500">
+                                <option value="Member" ${currentRole === 'Member' ? 'selected' : ''}>Member</option>
+                                <option value="Whitelisted" ${currentRole === 'Whitelisted' ? 'selected' : ''}>Whitelisted</option>
+                                <option value="Staff" ${currentRole === 'Staff' ? 'selected' : ''}>Staff</option>
+                                <option value="Dev" ${currentRole === 'Dev' ? 'selected' : ''}>Dev</option>
+                                <option value="Owner" ${currentRole === 'Owner' ? 'selected' : ''}>Owner</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="bg-[#111827] border border-red-600/40 rounded-3xl p-6 md:p-10 shadow-2xl mb-8">
+                    <div class="border-b border-gray-800 pb-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-red-500 uppercase tracking-widest bg-red-600/10 px-3 py-1 rounded-full border border-red-600/20">لوحة التحكم الخاصة بالمالك</span>
+                            <h1 class="text-2xl md:text-3xl font-black text-white mt-3"><i class="fa-solid fa-gauge-high ml-2 text-red-500"></i>Admin Control Panel</h1>
+                            <p class="text-gray-400 text-xs md:text-sm mt-1">مرحباً بك يا <strong>anw4aar77</strong>. يمكنك من هنا إدارة مستخدمي الموقع وتعديل رتبهم بسهولة.</p>
+                        </div>
+                        <button onclick="showHome()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center self-start">
+                            <i class="fa-solid fa-arrow-right ml-1.5"></i>العودة للرئيسية
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-gray-900 border-b border-gray-800 text-gray-400 text-xs uppercase">
+                                    <th class="p-3">اسم المستخدم (Username)</th>
+                                    <th class="p-3">الرتبة الحالية (Current Role)</th>
+                                    <th class="p-3">تغيير الرتبة (Change Role)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800 text-sm">
+                                ${usersTableHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeUserRole(username, newRole) {
+            let roles = getUserRoles();
+            roles[username] = newRole;
+            saveUserRoles(roles);
+            showAdminPanel(); // Refresh panel view
+        }
+
+        function showHome() {
+            const container = document.getElementById('main-content-container');
+            container.innerHTML = `
+                <div class="space-y-8">
+                    <!-- Hero Banner -->
+                    <div class="relative bg-gradient-to-r from-red-950/80 via-gray-900 to-[#111827] border border-red-600/40 rounded-3xl p-8 md:p-12 glow-red overflow-hidden shadow-2xl">
+                        <div class="absolute -left-10 -bottom-10 opacity-10 text-9xl text-red-500 font-black pointer-events-none">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="relative z-10 max-w-2xl">
+                            <span class="bg-red-600/20 text-red-400 border border-red-600/40 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-block mb-4">
+                                SAMP Roleplay Community
+                            </span>
+                            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight glow-text mb-4">
+                                أهلاً بك في سيرفر <span class="text-red-500">VISION FAMILY</span>
+                            </h1>
+                            <p class="text-gray-300 text-sm md:text-base leading-relaxed mb-6">
+                                مجتمع رول بلاي متكامل يجمع بين الواقعية، الاحترافية، والمتعة. استكشف القوانين الكاملة، انضم إلى مجتمعنا على ديسكورد، وعش مغامرة فريدة داخل المدينة.
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <a href="https://discord.gg/qDujVnNkCy" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2 space-x-reverse">
+                                    <i class="fa-brands fa-discord text-lg ml-2"></i>انضم إلى الديسكورد الرسمي
+                                </a>
+                                <button onclick="loadRuleSection('rp')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold px-6 py-3 rounded-xl border border-gray-700 transition flex items-center space-x-2 space-x-reverse">
+                                    <i class="fa-solid fa-book-open text-red-500 ml-2"></i>استعراض قوانين السيرفر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Navigation Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div onclick="loadRuleSection('rp')" class="bg-[#111827] border border-gray-800 hover:border-red-600/50 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-lg group">
+                            <div class="bg-red-600/20 text-red-500 w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-red-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">قوانين الرول بلاي (RP)</h3>
+                            <p class="text-gray-400 text-xs leading-relaxed">القوانين الـ 30 الأساسية لسيناريوهات اللعب والتعامل داخل المدينة.</p>
+                        </div>
+
+                        <div onclick="loadRuleSection('robbery')" class="bg-[#111827] border border-gray-800 hover:border-red-600/50 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-lg group">
+                            <div class="bg-red-600/20 text-red-500 w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-red-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-mask"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">قوانين السطو والسرقة</h3>
+                            <p class="text-gray-400 text-xs leading-relaxed">قوانين الـGrissage، المتاجر، بنك Fleeca، والبنك الكبير.</p>
+                        </div>
+
+                        <div onclick="loadRuleSection('illegal')" class="bg-[#111827] border border-gray-800 hover:border-red-600/50 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-lg group">
+                            <div class="bg-red-600/20 text-red-500 w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-red-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-skull"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">قوانين العصابات (Illegal)</h3>
+                            <p class="text-gray-400 text-xs leading-relaxed">تنظيم المافيات والعصابات، الـRed Zones، وعقوبات Mort RP.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadRuleSection(key) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+
+            const data = rulesData[key];
+            const container = document.getElementById('main-content-container');
+            
+            let contentHtml = `
+                <div class="bg-[#111827] border border-gray-800 rounded-3xl p-6 md:p-10 shadow-2xl mb-8">
+                    <div class="border-b border-gray-800 pb-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-red-500 uppercase tracking-widest bg-red-600/10 px-3 py-1 rounded-full border border-red-600/20">قوانين سيرفر VISION FAMILY</span>
+                            <h1 class="text-2xl md:text-3xl font-black text-white mt-3">${data.title}</h1>
+                            <p class="text-gray-400 text-xs md:text-sm mt-1">${data.subtitle}</p>
+                        </div>
+                        <button onclick="showHome()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center self-start">
+                            <i class="fa-solid fa-arrow-right ml-1.5"></i>العودة للرئيسية
+                        </button>
+                    </div>
+            `;
+
+            if (key === 'rp') {
+                contentHtml += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                data.items.forEach((item, index) => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-red-600/40 rounded-2xl p-5 transition">
+                            <div class="flex items-center space-x-3 space-x-reverse mb-2">
+                                <span class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg">#${index + 1}</span>
+                                <h3 class="text-base font-bold text-red-400">${item.name}</h3>
+                            </div>
+                            <p class="text-gray-300 text-xs md:text-sm leading-relaxed">${item.desc}</p>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'discord') {
+                contentHtml += `<div class="space-y-4">`;
+                data.items.forEach((item, index) => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-indigo-600/40 rounded-2xl p-5 transition">
+                            <div class="flex items-center space-x-3 space-x-reverse mb-2">
+                                <span class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg">قانون ${index + 1}</span>
+                            </div>
+                            <p class="text-gray-200 text-sm font-semibold mb-1">${item.ar}</p>
+                            <p class="text-indigo-400 text-xs italic">${item.fr}</p>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'language') {
+                contentHtml += `
+                    <div class="bg-red-950/30 border border-red-600/40 p-4 rounded-2xl mb-6 text-sm text-red-200 leading-relaxed">
+                        <strong>ملاحظة هامة:</strong> ${data.introAr}
+                    </div>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-gray-900 border-b border-gray-800 text-gray-400 text-xs uppercase">
+                                    <th class="p-3">مصطلح خارج اللعبة (HRP)</th>
+                                    <th class="p-3">المصطلح البديل داخل الـRP (عربي)</th>
+                                    <th class="p-3">Terme RP (Français)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800 text-sm">
+                `;
+                data.dictionary.forEach(row => {
+                    contentHtml += `
+                        <tr class="hover:bg-gray-900/50 transition">
+                            <td class="p-3 font-bold text-red-400">${row.rp}</td>
+                            <td class="p-3 text-gray-300">${row.ar}</td>
+                            <td class="p-3 text-indigo-400 italic text-xs">${row.fr}</td>
+                        </tr>
+                    `;
+                });
+                contentHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl text-xs text-gray-300">
+                        <strong>العقوبات:</strong> ${data.sanctionAr}
+                    </div>
+                `;
+            } else if (key === 'robbery') {
+                contentHtml += `<div class="space-y-4 mb-6">`;
+                data.items.forEach(item => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-red-600/40 rounded-2xl p-5 transition">
+                            <div class="flex items-center space-x-3 space-x-reverse mb-2">
+                                <span class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg">الحالة ${item.num}</span>
+                            </div>
+                            <p class="text-gray-200 text-sm font-semibold mb-1">${item.ar}</p>
+                            <p class="text-red-400 text-xs italic">${item.fr}</p>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>
+                    <div class="bg-red-950/40 border border-red-600/50 p-5 rounded-2xl text-sm text-red-200">
+                        <strong>المبدأ العام (Principe général):</strong> ${data.general}
+                    </div>
+                `;
+            } else if (key === 'store_fleeca') {
+                contentHtml += `<div class="space-y-6">`;
+                data.stores.forEach(store => {
+                    contentHtml += `
+                        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+                            <h3 class="text-lg font-bold text-red-400 mb-4 border-b border-gray-800 pb-2">${store.name}</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm text-gray-300">
+                                <div><strong class="text-white">الأعضاء:</strong> ${store.members}</div>
+                                <div><strong class="text-white">الأسلحة:</strong> ${store.weapons}</div>
+                                <div><strong class="text-white">المركبات:</strong> ${store.vehicles}</div>
+                                <div><strong class="text-white">الرهائن والشرطة:</strong> ${store.hostages}</div>
+                                <div class="md:col-span-2"><strong class="text-red-400">المحظورات:</strong> ${store.bans}</div>
+                                <div class="md:col-span-2"><strong class="text-emerald-400">المكافأة:</strong> ${store.reward}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'illegal') {
+                contentHtml += `<div class="space-y-3">`;
+                data.items.forEach((item, index) => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-red-600/40 rounded-xl p-4 text-xs md:text-sm text-gray-300 flex items-start space-x-3 space-x-reverse">
+                            <span class="bg-red-600/20 text-red-400 px-2 py-0.5 rounded font-bold text-xs mt-0.5">${index + 1}</span>
+                            <p class="leading-relaxed">${item}</p>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'safezone') {
+                contentHtml += `
+                    <div class="bg-emerald-950/30 border border-emerald-600/40 p-4 rounded-2xl mb-6 text-sm text-emerald-200">
+                        ${data.general}
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-4">قائمة المناطق الآمنة (Safe Zones):</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                `;
+                data.locations.forEach((loc, index) => {
+                    contentHtml += `
+                        <div class="bg-gray-900 border border-gray-800 p-3.5 rounded-xl text-xs md:text-sm text-gray-300 flex items-center space-x-3 space-x-reverse">
+                            <i class="fa-solid fa-shield text-emerald-500"></i>
+                            <span>${loc}</span>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'legal') {
+                contentHtml += `<div class="space-y-4">`;
+                data.items.forEach((item, index) => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-blue-600/40 rounded-2xl p-5">
+                            <p class="text-gray-200 text-sm leading-relaxed">${item}</p>
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            } else if (key === 'looting') {
+                contentHtml += `<div class="space-y-3">`;
+                data.items.forEach(item => {
+                    contentHtml += `
+                        <div class="bg-gray-900/70 border border-gray-800 hover:border-red-600/40 rounded-xl p-4 text-xs md:text-sm text-gray-300 leading-relaxed">
+                            ${item}
+                        </div>
+                    `;
+                });
+                contentHtml += `</div>`;
+            }
+
+            contentHtml += `</div>`;
+            container.innerHTML = contentHtml;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
