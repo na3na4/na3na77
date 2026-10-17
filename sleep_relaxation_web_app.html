@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملاذ النوم والاسترخاء | Sleep & Relaxation Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        night: {
+                            900: '#070A13',
+                            800: '#0B132B',
+                            700: '#1C2541',
+                            600: '#3A506B',
+                        },
+                        amberGlow: '#FFD166',
+                        softPurple: '#7B2CBF',
+                        moonBlue: '#4EA8DE',
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #070A13;
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(28, 37, 65, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-hover:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 209, 102, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(123, 44, 191, 0.3);
+        }
+
+        /* Glowing Effects */
+        .glow-amber {
+            box-shadow: 0 0 20px rgba(255, 209, 102, 0.25);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(123, 44, 191, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070A13;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1C2541;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3A506B;
+        }
+
+        /* Breathing Animation Visualizer */
+        @keyframes pulseGlow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(78, 168, 222, 0.2);
+            }
+            50% {
+                transform: scale(1.4);
+                box-shadow: 0 0 70px rgba(255, 209, 102, 0.5), 0 0 100px rgba(123, 44, 191, 0.4);
+            }
+        }
+
+        .breathing-circle-active {
+            transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 4s ease;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 6px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #FFD166;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+            transition: all 0.2s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Night Stand Mode Animations */
+        .night-glow-text {
+            text-shadow: 0 0 25px rgba(255, 209, 102, 0.4), 0 0 50px rgba(255, 209, 102, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amberGlow selection:text-night-900">
+
+    <!-- Stars background effect (Canvas) -->
+    <canvas id="starsCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-60"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="relative z-10 border-b border-white/10 glass-card sticky top-0 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="switchTab('calculator')">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-softPurple to-amberGlow flex items-center justify-center shadow-lg shadow-softPurple/30">
+                    <i class="fa-solid font-bold fa-moon text-night-900 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide text-white flex items-center gap-2">
+                        نعاس <span class="text-xs px-2 py-0.5 rounded-full bg-amberGlow/20 text-amberGlow border border-amberGlow/30">N3as App</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">راحتك ونومك العميق بيبدأ هنا</p>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Buttons -->
+            <nav class="hidden md:flex space-x-1 space-x-reverse bg-night-900/60 p-1.5 rounded-2xl border border-white/5">
+                <button onclick="switchTab('calculator')" id="nav-calculator" class="nav-btn active px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2 text-amberGlow bg-night-700/80 shadow-sm">
+                    <i class="fa-solid fa-calculator text-xs"></i> حاسبة النوم
+                </button>
+                <button onclick="switchTab('sounds')" id="nav-sounds" class="nav-btn px-5 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-music text-xs"></i> أصوات الاسترخاء
+                </button>
+                <button onclick="switchTab('breathing')" id="nav-breathing" class="nav-btn px-5 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-wind text-xs"></i> تمرين التنفس (4-7-8)
+                </button>
+                <button onclick="openNightStand()" class="px-4 py-2.5 rounded-xl text-sm font-medium bg-amberGlow/10 text-amberGlow hover:bg-amberGlow/20 border border-amberGlow/30 transition-all duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-bed text-xs"></i> ساعة الليل
+                </button>
+            </nav>
+
+            <!-- Quick Action Mobile Button -->
+            <button onclick="openNightStand()" class="md:hidden p-2.5 rounded-xl bg-amberGlow/10 text-amberGlow border border-amberGlow/30">
+                <i class="fa-solid fa-bed text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Bottom Nav bar -->
+        <div class="md:hidden flex justify-around border-t border-white/5 bg-night-900/90 py-2 px-2">
+            <button onclick="switchTab('calculator')" id="mob-calculator" class="mob-btn flex flex-col items-center py-1 text-amberGlow">
+                <i class="fa-solid fa-calculator text-lg"></i>
+                <span class="text-[10px] mt-1">الحاسبة</span>
+            </button>
+            <button onclick="switchTab('sounds')" id="mob-sounds" class="mob-btn flex flex-col items-center py-1 text-gray-400">
+                <i class="fa-solid fa-music text-lg"></i>
+                <span class="text-[10px] mt-1">الأصوات</span>
+            </button>
+            <button onclick="switchTab('breathing')" id="mob-breathing" class="mob-btn flex flex-col items-center py-1 text-gray-400">
+                <i class="fa-solid fa-wind text-lg"></i>
+                <span class="text-[10px] mt-1">التنفس</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- ================= SECTION 1: SLEEP CALCULATOR ================= -->
+        <section id="sec-calculator" class="tab-content transition-all duration-500">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="px-3 py-1 text-xs rounded-full bg-softPurple/20 text-purple-300 border border-softPurple/30 inline-block mb-3">
+                    <i class="fa-solid fa-wand-magic-sparkles ml-1"></i> احسب وقت الفياق ولا النعاس
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black text-white mb-3">حاسبة دورات النوم الذكية</h2>
+                <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    الانسان كينعس على شكل دورات (Sleep Cycles) فيها 90 دقيقة. إيلا فقتي فالمرحلة الخفيفة من الدورة كتقيل ناشط، وإيلا فقتي فالمرحلة الثقيلة كتقيل عيان ومرخي.
+                </p>
+            </div>
+
+            <!-- Card Mode Selector -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-3xl mx-auto border border-white/10 mb-8 shadow-2xl">
+                <div class="flex rounded-2xl bg-night-900/80 p-1.5 border border-white/5 mb-8">
+                    <button id="calc-mode-bed" onclick="setCalcMode('bedtime')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 bg-night-700 text-amberGlow shadow">
+                        بغيت نعس دابا 🛌
+                    </button>
+                    <button id="calc-mode-wake" onclick="setCalcMode('waketime')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 text-gray-400 hover:text-white">
+                        عندي وقت الفياق محدد ⏰
+                    </button>
+                </div>
+
+                <!-- Input View: Bedtime Mode -->
+                <div id="bedtime-input-view" class="text-center py-4">
+                    <p class="text-gray-300 mb-6 text-lg">إيلا نعستي <span class="font-bold text-amberGlow">دابا</span> (ومع احتساب 15 دقيقة باش يديك النعاس)، خاصك تفيق فـ :</p>
+                    <button onclick="calculateSleepTimesNow()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amberGlow to-amber-500 text-night-900 font-extrabold text-lg rounded-2xl shadow-lg hover:shadow-amberGlow/30 hover:scale-105 active:scale-95 transition-all">
+                        <i class="fa-solid fa-moon ml-2"></i> احسب لي أوقات الفياق المثالية
+                    </button>
+                </div>
+
+                <!-- Input View: Custom Wake-up Mode -->
+                <div id="waketime-input-view" class="hidden text-center py-4">
+                    <p class="text-gray-300 mb-6 text-lg">فوقاش باغي تفيق غدا مع الصباح؟</p>
+                    <div class="flex justify-center items-center gap-4 mb-6">
+                        <input type="time" id="wake-time-input" value="07:00" class="bg-night-900 text-2xl sm:text-3xl font-bold text-amberGlow border border-amberGlow/40 rounded-2xl px-6 py-3 focus:outline-none focus:ring-2 focus:ring-amberGlow shadow-inner">
+                    </div>
+                    <button onclick="calculateBedtimesForWake()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-softPurple to-indigo-600 text-white font-extrabold text-lg rounded-2xl shadow-lg hover:shadow-softPurple/40 hover:scale-105 active:scale-95 transition-all">
+                        <i class="fa-solid fa-bed ml-2"></i> فوقاش خاصني نننعس؟
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="calculator-results" class="hidden mt-10 pt-8 border-t border-white/10">
+                    <h3 id="results-title" class="text-lg font-bold text-gray-200 mb-6 text-center"></h3>
+                    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Cards injected via JS -->
+                    </div>
+                    <div class="mt-6 bg-night-900/60 p-4 rounded-2xl border border-white/5 text-xs text-gray-400 text-center">
+                        <i class="fa-solid fa-circle-info text-amberGlow ml-1"></i>
+                        ملحوظة: الشخص العادي كيحتاج تقريباً 15 دقيقة باش يديه النعاس بعد ما يطفي الضو.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: AMBIENT SOUNDS ================= -->
+        <section id="sec-sounds" class="tab-content hidden transition-all duration-500">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="px-3 py-1 text-xs rounded-full bg-moonBlue/20 text-moonBlue border border-moonBlue/30 inline-block mb-3">
+                    <i class="fa-solid fa-sliders ml-1"></i> استوديو أصوات الاسترخاء
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black text-white mb-3">صوب جو النوم الخاص بيك</h2>
+                <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    اخلط وأمزج أصوات الطبيعة الهادئة بتركيبات الصوت اللي كترتاح ليها (White Noise Synthesizer).
+                </p>
+            </div>
+
+            <!-- Master Controls -->
+            <div class="glass-card rounded-2xl p-4 max-w-4xl mx-auto mb-8 flex flex-wrap items-center justify-between gap-4 border border-white/10">
+                <div class="flex items-center gap-3">
+                    <button id="master-play-btn" onclick="toggleMasterPlay()" class="w-12 h-12 rounded-xl bg-amberGlow text-night-900 font-bold flex items-center justify-center hover:scale-105 transition shadow-lg shadow-amberGlow/20">
+                        <i class="fa-solid fa-play text-xl" id="master-icon"></i>
+                    </button>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">المشغل الرئيسي</h4>
+                        <p class="text-xs text-gray-400" id="master-status-text">جميع الأصوات متوقفة</p>
+                    </div>
+                </div>
+                <button onclick="stopAllSounds()" class="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-semibold border border-red-500/20 transition">
+                    <i class="fa-solid fa-power-off ml-1"></i> إيقاف الكل
+                </button>
+            </div>
+
+            <!-- Sound Matrix Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <!-- Rain Sound -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-rain">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl border border-blue-500/30">
+                                <i class="fa-solid fa-cloud-showers-heavy"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">تساقط المطر</h3>
+                                <span class="text-xs text-gray-400">Rainfall</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('rain')" id="btn-sound-rain" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-rain">50%</span>
+                        </div>
+                        <input type="range" id="vol-rain" min="0" max="100" value="50" oninput="updateVolume('rain', this.value)" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Ocean Waves -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-waves">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl border border-cyan-500/30">
+                                <i class="fa-solid fa-water"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">أمواج البحر</h3>
+                                <span class="text-xs text-gray-400">Ocean Waves</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('waves')" id="btn-sound-waves" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-waves">50%</span>
+                        </div>
+                        <input type="range" id="vol-waves" min="0" max="100" value="50" oninput="updateVolume('waves', this.value)" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Night / Crickets -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-night">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl border border-indigo-500/30">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">هدوء الليل والصرار</h3>
+                                <span class="text-xs text-gray-400">Night & Crickets</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('night')" id="btn-sound-night" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-night">50%</span>
+                        </div>
+                        <input type="range" id="vol-night" min="0" max="100" value="50" oninput="updateVolume('night', this.value)" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Wind -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-wind">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-2xl border border-teal-500/30">
+                                <i class="fa-solid fa-wind"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">نسيم الرياح</h3>
+                                <span class="text-xs text-gray-400">Deep Wind</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('wind')" id="btn-sound-wind" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-wind">50%</span>
+                        </div>
+                        <input type="range" id="vol-wind" min="0" max="100" value="50" oninput="updateVolume('wind', this.value)" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Fireplace -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-fire">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl border border-amber-500/30">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">دفيء المدفأة</h3>
+                                <span class="text-xs text-gray-400">Cozy Fireplace</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('fire')" id="btn-sound-fire" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-fire">50%</span>
+                        </div>
+                        <input type="range" id="vol-fire" min="0" max="100" value="50" oninput="updateVolume('fire', this.value)" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Pure White Noise -->
+                <div class="glass-card glass-card-hover rounded-3xl p-6 border border-white/10 relative overflow-hidden" id="card-whitenoise">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl border border-purple-500/30">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">الضوضاء البيضاء</h3>
+                                <span class="text-xs text-gray-400">Pink & White Noise</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleSound('whitenoise')" id="btn-sound-whitenoise" class="w-10 h-10 rounded-full bg-night-900 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>شدة الصوت</span>
+                            <span id="vol-txt-whitenoise">50%</span>
+                        </div>
+                        <input type="range" id="vol-whitenoise" min="0" max="100" value="50" oninput="updateVolume('whitenoise', this.value)" class="w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: BREATHING EXERCISE ================= -->
+        <section id="sec-breathing" class="tab-content hidden transition-all duration-500">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <span class="px-3 py-1 text-xs rounded-full bg-amberGlow/20 text-amberGlow border border-amberGlow/30 inline-block mb-3">
+                    <i class="fa-solid fa-spa ml-1"></i> الاسترخاء السريع
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black text-white mb-3">تمرين التنفس 4-7-8</h2>
+                <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    تقنية علمية معروفة بتهدئة الجهاز العصبي ومساعدة العقل على النوم بسرعة: استنشق (4s)، احبس النفس (7s)، أخرج الزفير (8s).
+                </p>
+            </div>
+
+            <div class="glass-card rounded-3xl p-8 max-w-xl mx-auto text-center border border-white/10 shadow-2xl relative overflow-hidden">
+
+                <!-- Animated Circle Container -->
+                <div class="relative w-64 h-64 mx-auto my-8 flex items-center justify-center">
+                    <!-- Outer Halo -->
+                    <div id="breath-halo" class="absolute inset-0 rounded-full bg-gradient-to-tr from-softPurple/30 to-amberGlow/20 border border-white/10 transform transition-transform duration-[4000ms]"></div>
+                    
+                    <!-- Inner Active Circle -->
+                    <div id="breath-circle" class="w-44 h-44 rounded-full bg-gradient-to-tr from-night-700 to-softPurple/80 flex flex-col items-center justify-center z-10 border border-white/20 shadow-2xl transition-all duration-[1000ms]">
+                        <span id="breath-phase" class="text-xl font-black text-white mb-1">استعد</span>
+                        <span id="breath-timer" class="text-3xl font-extrabold text-amberGlow">4</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex justify-center gap-4">
+                    <button id="btn-start-breath" onclick="toggleBreathingSession()" class="px-8 py-3.5 bg-gradient-to-r from-amberGlow to-amber-500 text-night-900 font-extrabold rounded-2xl shadow-lg hover:shadow-amberGlow/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-play" id="breath-btn-icon"></i> <span id="breath-btn-text">بدا التمرين</span>
+                    </button>
+                </div>
+
+                <!-- Info Box -->
+                <div class="mt-8 grid grid-cols-3 gap-2 text-center text-xs">
+                    <div class="bg-night-900/60 p-3 rounded-xl border border-white/5">
+                        <p class="text-gray-400 mb-1">شهيق (Inhale)</p>
+                        <p class="font-bold text-moonBlue text-base">4 ثواني</p>
+                    </div>
+                    <div class="bg-night-900/60 p-3 rounded-xl border border-white/5">
+                        <p class="text-gray-400 mb-1">حبس النفس (Hold)</p>
+                        <p class="font-bold text-amberGlow text-base">7 ثواني</p>
+                    </div>
+                    <div class="bg-night-900/60 p-3 rounded-xl border border-white/5">
+                        <p class="text-gray-400 mb-1">زفير (Exhale)</p>
+                        <p class="font-bold text-softPurple text-base">8 ثواني</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-white/10 py-6 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>ملاذ النوم والاسترخاء © 2026 • صُمم بالحب والألوان الدافئة لمساعدتك على النوم</p>
+        </div>
+    </footer>
+
+    <!-- ================= FULLSCREEN NIGHT STAND MODAL ================= -->
+    <div id="nightstand-modal" class="fixed inset-0 z-50 bg-night-900 hidden flex flex-col justify-between p-6 sm:p-12 transition-opacity duration-500">
+        <!-- Close & Controls Header -->
+        <div class="flex justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
+            <div class="flex items-center gap-2 text-amberGlow">
+                <i class="fa-solid fa-bed text-xl"></i>
+                <span class="font-bold text-sm tracking-widest uppercase">وضع ساعة الليل</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleNightstandDim()" class="text-gray-300 hover:text-amberGlow text-sm bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="fa-solid fa-lightbulb ml-1"></i> <span id="dim-btn-txt">تعتيم الشاشة</span>
+                </button>
+                <button onclick="closeNightStand()" class="text-gray-400 hover:text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full bg-white/5">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Clock Center Display -->
+        <div class="text-center my-auto">
+            <div id="night-time" class="text-6xl sm:text-8xl md:text-9xl font-black text-amberGlow tracking-wider night-glow-text">
+                00:00:00
+            </div>
+            <div id="night-date" class="text-lg sm:text-2xl font-medium text-gray-400 mt-4">
+                --
+            </div>
+            <p id="night-quote" class="text-sm sm:text-base text-purple-300/70 italic mt-8 max-w-lg mx-auto">
+                "غمض عينيك، اطفي أفكارك، وخلي جسمك يرتخي..."
+            </p>
+        </div>
+
+        <!-- Ambient Sound Controls Overlay inside Night mode -->
+        <div class="text-center opacity-30 hover:opacity-100 transition-opacity">
+            <p class="text-xs text-gray-500">اضغط مرتين في أي مكان للرجوع • انقر للتحكم بالأصوات</p>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* -------------------------------------------------------------
+           1. STARFIELD BACKGROUND ANIMATION
+        ------------------------------------------------------------- */
+        const canvas = document.getElementById('starsCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 4000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.008 + 0.002
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) {
+                    star.speed = -star.speed;
+                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 209, 102, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        drawStars();
+
+        /* -------------------------------------------------------------
+           2. TAB NAVIGATION SYSTEM
+        ------------------------------------------------------------- */
+        function switchTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected tab content
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+
+            // Reset desktop buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-amberGlow', 'bg-night-700/80', 'shadow-sm');
+                btn.classList.add('text-gray-300');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('text-amberGlow', 'bg-night-700/80', 'shadow-sm');
+                activeNav.classList.remove('text-gray-300');
+            }
+
+            // Reset mobile buttons
+            document.querySelectorAll('.mob-btn').forEach(btn => {
+                btn.classList.remove('text-amberGlow');
+                btn.classList.add('text-gray-400');
+            });
+            const activeMob = document.getElementById(`mob-${tabId}`);
+            if (activeMob) {
+                activeMob.classList.add('text-amberGlow');
+                activeMob.classList.remove('text-gray-400');
+            }
+        }
+
+        /* -------------------------------------------------------------
+           3. SLEEP CYCLE CALCULATOR LOGIC
+        ------------------------------------------------------------- */
+        let calcMode = 'bedtime'; // 'bedtime' or 'waketime'
+
+        function setCalcMode(mode) {
+            calcMode = mode;
+            const btnBed = document.getElementById('calc-mode-bed');
+            const btnWake = document.getElementById('calc-mode-wake');
+            const viewBed = document.getElementById('bedtime-input-view');
+            const viewWake = document.getElementById('waketime-input-view');
+            const results = document.getElementById('calculator-results');
+
+            results.classList.add('hidden');
+
+            if (mode === 'bedtime') {
+                btnBed.classList.add('bg-night-700', 'text-amberGlow', 'shadow');
+                btnBed.classList.remove('text-gray-400');
+                btnWake.classList.remove('bg-night-700', 'text-amberGlow', 'shadow');
+                btnWake.classList.add('text-gray-400');
+
+                viewBed.classList.remove('hidden');
+                viewWake.classList.add('hidden');
+            } else {
+                btnWake.classList.add('bg-night-700', 'text-amberGlow', 'shadow');
+                btnWake.classList.remove('text-gray-400');
+                btnBed.classList.remove('bg-night-700', 'text-amberGlow', 'shadow');
+                btnBed.classList.add('text-gray-400');
+
+                viewWake.classList.remove('hidden');
+                viewBed.classList.add('hidden');
+            }
+        }
+
+        function formatTime(date) {
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'مساءً' : 'صباحاً';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return {
+                timeStr: `${hours}:${minutes}`,
+                ampm: ampm
+            };
+        }
+
+        function calculateSleepTimesNow() {
+            const now = new Date();
+            // Add 15 minutes falling asleep time
+            const baseTime = new Date(now.getTime() + 15 * 60000);
+            
+            const cycles = [3, 4, 5, 6]; // 4.5h, 6h, 7.5h, 9h
+            const container = document.getElementById('results-grid');
+            container.innerHTML = '';
+
+            document.getElementById('results-title').innerText = 'الأوقات الأفضل باش تفيق وأنت شبعان نوم :';
+
+            cycles.forEach((c, idx) => {
+                const wakeTime = new Date(baseTime.getTime() + c * 90 * 60000);
+                const formatted = formatTime(wakeTime);
+                const totalHours = (c * 1.5).toFixed(1);
+
+                let badge = { text: 'نوم مقبول', bg: 'bg-gray-500/20 text-gray-300' };
+                if (c === 5) badge = { text: 'مثالي جداً (الموصى به) ✨', bg: 'bg-amberGlow/20 text-amberGlow border border-amberGlow/30' };
+                if (c === 6) badge = { text: 'راحة كاملة 😴', bg: 'bg-purple-500/20 text-purple-300 border border-purple-500/30' };
+
+                const cardHtml = `
+                    <div class="glass-card rounded-2xl p-5 text-center border border-white/10 ${c === 5 ? 'ring-2 ring-amberGlow/50 glow-amber' : ''}">
+                        <span class="text-[11px] px-2.5 py-1 rounded-full ${badge.bg} font-semibold inline-block mb-3">${badge.text}</span>
+                        <div class="text-3xl font-black text-white mb-1">
+                            ${formatted.timeStr} <span class="text-xs text-amberGlow font-normal">${formatted.ampm}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">${c} دورات نوم (${totalHours} ساعات)</p>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            document.getElementById('calculator-results').classList.remove('hidden');
+        }
+
+        function calculateBedtimesForWake() {
+            const timeVal = document.getElementById('wake-time-input').value;
+            if (!timeVal) return;
+
+            const [hrs, mins] = timeVal.split(':');
+            const targetWake = new Date();
+            targetWake.setHours(parseInt(hrs), parseInt(mins), 0);
+
+            // If time set is earlier than current time, assume for next day
+            if (targetWake < new Date()) {
+                targetWake.setDate(targetWake.getDate() + 1);
+            }
+
+            const cycles = [6, 5, 4, 3]; // Calculate bedtimes backwards
+            const container = document.getElementById('results-grid');
+            container.innerHTML = '';
+
+            document.getElementById('results-title').innerText = `باش تفيق مع ${timeVal}، خاصك تنعس فواحد من هذه الأوقات :`;
+
+            cycles.forEach((c) => {
+                // Subtract 15 min falling asleep + (cycles * 90 mins)
+                const bedTime = new Date(targetWake.getTime() - (c * 90 * 60000) - (15 * 60000));
+                const formatted = formatTime(bedTime);
+                const totalHours = (c * 1.5).toFixed(1);
+
+                let badge = { text: 'طاقة ممتازة', bg: 'bg-gray-500/20 text-gray-300' };
+                if (c === 5) badge = { text: 'مثالي جداً ✨', bg: 'bg-amberGlow/20 text-amberGlow border border-amberGlow/30' };
+                if (c === 6) badge = { text: 'نوم عميق 😴', bg: 'bg-purple-500/20 text-purple-300 border border-purple-500/30' };
+
+                const cardHtml = `
+                    <div class="glass-card rounded-2xl p-5 text-center border border-white/10 ${c === 5 ? 'ring-2 ring-amberGlow/50 glow-amber' : ''}">
+                        <span class="text-[11px] px-2.5 py-1 rounded-full ${badge.bg} font-semibold inline-block mb-3">${badge.text}</span>
+                        <div class="text-3xl font-black text-white mb-1">
+                            ${formatted.timeStr} <span class="text-xs text-amberGlow font-normal">${formatted.ampm}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">${c} دورات نوم (${totalHours} ساعات)</p>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            document.getElementById('calculator-results').classList.remove('hidden');
+        }
+
+        /* -------------------------------------------------------------
+           4. AMBIENT SOUND GENERATOR (WEB AUDIO API SYNTHESIZER)
+        ------------------------------------------------------------- */
+        let audioCtx = null;
+        let isMasterPlaying = false;
+
+        // Sound state database
+        const sounds = {
+            rain: { playing: false, volume: 0.5, node: null, gain: null },
+            waves: { playing: false, volume: 0.5, node: null, gain: null },
+            night: { playing: false, volume: 0.5, node: null, gain: null },
+            wind: { playing: false, volume: 0.5, node: null, gain: null },
+            fire: { playing: false, volume: 0.5, node: null, gain: null },
+            whitenoise: { playing: false, volume: 0.5, node: null, gain: null }
+        };
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Noise Buffer Generator helper
+        function createNoiseBuffer(type = 'pink') {
+            const bufferSize = audioCtx.sampleRate * 2; // 2 sec buffer
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            if (type === 'white') {
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+            } else if (type === 'pink') {
+                let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    let white = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + white * 0.0555179;
+                    b1 = 0.99332 * b1 + white * 0.0750759;
+                    b2 = 0.96900 * b2 + white * 0.1538520;
+                    b3 = 0.86650 * b3 + white * 0.3104856;
+                    b4 = 0.55000 * b4 + white * 0.5329522;
+                    b5 = -0.7616 * b5 - white * 0.0168980;
+                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                    output[i] *= 0.11;
+                    b6 = white * 0.115926;
+                }
+            } else if (type === 'brown') {
+                let lastOut = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    let white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = output[i];
+                    output[i] *= 3.5;
+                }
+            }
+            return buffer;
+        }
+
+        function createSynthesizedSound(type) {
+            initAudioContext();
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(sounds[type].volume, audioCtx.currentTime);
+            gainNode.connect(audioCtx.destination);
+
+            let source = null;
+
+            if (type === 'rain') {
+                // Filtered pink noise with low pass
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('pink');
+                source.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 1000;
+
+                source.connect(filter);
+                filter.connect(gainNode);
+                source.start();
+
+            } else if (type === 'waves') {
+                // Brown noise modulated with an LFO for sea swell
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('brown');
+                source.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+
+                const lfo = audioCtx.createOscillator();
+                lfo.frequency.value = 0.12; // Modulate every ~8 seconds
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.value = 300;
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                lfo.start();
+
+                source.connect(filter);
+                filter.connect(gainNode);
+                source.start();
+
+            } else if (type === 'night') {
+                // Soft background hum + intermittent crickets oscillator
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('pink');
+                source.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 4500;
+                filter.Q.value = 5.0;
+
+                source.connect(filter);
+                filter.connect(gainNode);
+                source.start();
+
+            } else if (type === 'wind') {
+                // Lowpass brown noise with slow filter sweeps
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('brown');
+                source.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 300;
+
+                const lfo = audioCtx.createOscillator();
+                lfo.frequency.value = 0.2;
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.value = 200;
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                lfo.start();
+
+                source.connect(filter);
+                filter.connect(gainNode);
+                source.start();
+
+            } else if (type === 'fire') {
+                // Crackling noise using filtered white noise spikes
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('white');
+                source.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1200;
+
+                source.connect(filter);
+                filter.connect(gainNode);
+                source.start();
+
+            } else if (type === 'whitenoise') {
+                // Pure smooth pink noise
+                source = audioCtx.createBufferSource();
+                source.buffer = createNoiseBuffer('pink');
+                source.loop = true;
+
+                source.connect(gainNode);
+                source.start();
+            }
+
+            sounds[type].node = source;
+            sounds[type].gain = gainNode;
+        }
+
+        function toggleSound(type) {
+            initAudioContext();
+            const sound = sounds[type];
+            const btn = document.getElementById(`btn-sound-${type}`);
+            const card = document.getElementById(`card-${type}`);
+
+            if (sound.playing) {
+                // Stop sound
+                if (sound.node) {
+                    try { sound.node.stop(); } catch(e){}
+                    sound.node = null;
+                }
+                sound.playing = false;
+                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                btn.classList.remove('bg-amberGlow', 'text-night-900');
+                btn.classList.add('bg-night-900', 'text-gray-400');
+                card.classList.remove('ring-2', 'ring-amberGlow/50');
+            } else {
+                // Play sound
+                createSynthesizedSound(type);
+                sound.playing = true;
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                btn.classList.add('bg-amberGlow', 'text-night-900');
+                btn.classList.remove('bg-night-900', 'text-gray-400');
+                card.classList.add('ring-2', 'ring-amberGlow/50');
+            }
+
+            updateMasterState();
+        }
+
+        function updateVolume(type, val) {
+            const vol = val / 100;
+            sounds[type].volume = vol;
+            document.getElementById(`vol-txt-${type}`).innerText = `${val}%`;
+
+            if (sounds[type].gain && audioCtx) {
+                sounds[type].gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            }
+        }
+
+        function updateMasterState() {
+            const anyPlaying = Object.values(sounds).some(s => s.playing);
+            isMasterPlaying = anyPlaying;
+            const masterBtnIcon = document.getElementById('master-icon');
+            const masterStatus = document.getElementById('master-status-text');
+
+            if (anyPlaying) {
+                masterBtnIcon.className = 'fa-solid fa-pause text-xl';
+                masterStatus.innerText = 'أصوات الاسترخاء شغالة الآن...';
+            } else {
+                masterBtnIcon.className = 'fa-solid fa-play text-xl';
+                masterStatus.innerText = 'جميع الأصوات متوقفة';
+            }
+        }
+
+        function toggleMasterPlay() {
+            if (isMasterPlaying) {
+                stopAllSounds();
+            } else {
+                // Turn on default ambient mix (Rain & Night)
+                if (!sounds.rain.playing) toggleSound('rain');
+                if (!sounds.night.playing) toggleSound('night');
+            }
+        }
+
+        function stopAllSounds() {
+            Object.keys(sounds).forEach(key => {
+                if (sounds[key].playing) {
+                    toggleSound(key);
+                }
+            });
+        }
+
+        /* -------------------------------------------------------------
+           5. INTERACTIVE BREATHING EXERCISE (4-7-8 METHOD)
+        ------------------------------------------------------------- */
+        let breathingTimer = null;
+        let isBreathingActive = false;
+
+        function toggleBreathingSession() {
+            const btnText = document.getElementById('breath-btn-text');
+            const btnIcon = document.getElementById('breath-btn-icon');
+
+            if (isBreathingActive) {
+                // Stop session
+                clearInterval(breathingTimer);
+                isBreathingActive = false;
+                btnText.innerText = 'بدا التمرين';
+                btnIcon.className = 'fa-solid fa-play';
+
+                document.getElementById('breath-phase').innerText = 'مستعد؟';
+                document.getElementById('breath-timer').innerText = '4';
+                resetBreathingCircle();
+            } else {
+                // Start session
+                initAudioContext();
+                isBreathingActive = true;
+                btnText.innerText = 'إيقاف التمرين';
+                btnIcon.className = 'fa-solid fa-pause';
+                runBreathingCycle();
+            }
+        }
+
+        function resetBreathingCircle() {
+            const circle = document.getElementById('breath-circle');
+            const halo = document.getElementById('breath-halo');
+            circle.style.transform = 'scale(1)';
+            halo.style.transform = 'scale(1)';
+        }
+
+        function runBreathingCycle() {
+            if (!isBreathingActive) return;
+
+            const circle = document.getElementById('breath-circle');
+            const halo = document.getElementById('breath-halo');
+            const phaseTxt = document.getElementById('breath-phase');
+            const timerTxt = document.getElementById('breath-timer');
+
+            // Phase 1: Inhale (4 seconds)
+            phaseTxt.innerText = 'استنشق (شهيق)';
+            phaseTxt.className = 'text-xl font-black text-moonBlue mb-1';
+            circle.style.transform = 'scale(1.35)';
+            halo.style.transform = 'scale(1.5)';
+            
+            let count = 4;
+            timerTxt.innerText = count;
+
+            breathingTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    timerTxt.innerText = count;
+                } else {
+                    clearInterval(breathingTimer);
+
+                    // Phase 2: Hold (7 seconds)
+                    phaseTxt.innerText = 'احبس النفس';
+                    phaseTxt.className = 'text-xl font-black text-amberGlow mb-1';
+                    count = 7;
+                    timerTxt.innerText = count;
+
+                    breathingTimer = setInterval(() => {
+                        count--;
+                        if (count > 0) {
+                            timerTxt.innerText = count;
+                        } else {
+                            clearInterval(breathingTimer);
+
+                            // Phase 3: Exhale (8 seconds)
+                            phaseTxt.innerText = 'أخرج النفس (زفير)';
+                            phaseTxt.className = 'text-xl font-black text-purple-300 mb-1';
+                            circle.style.transform = 'scale(1)';
+                            halo.style.transform = 'scale(1)';
+                            count = 8;
+                            timerTxt.innerText = count;
+
+                            breathingTimer = setInterval(() => {
+                                count--;
+                                if (count > 0) {
+                                    timerTxt.innerText = count;
+                                } else {
+                                    clearInterval(breathingTimer);
+                                    // Repeat cycle
+                                    if (isBreathingActive) {
+                                        runBreathingCycle();
+                                    }
+                                }
+                            }, 1000);
+                        }
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        /* -------------------------------------------------------------
+           6. NIGHT STAND MODE CLOCK
+        ------------------------------------------------------------- */
+        let nightClockInterval = null;
+        let isDimmed = false;
+
+        function updateNightClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            document.getElementById('night-time').innerText = `${hours}:${minutes}:${seconds}`;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('night-date').innerText = now.toLocaleDateString('ar-MA', options);
+        }
+
+        function openNightStand() {
+            const modal = document.getElementById('nightstand-modal');
+            modal.classList.remove('hidden');
+            updateNightClock();
+            nightClockInterval = setInterval(updateNightClock, 1000);
+
+            // Request Fullscreen if supported
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }
+
+        function closeNightStand() {
+            const modal = document.getElementById('nightstand-modal');
+            modal.classList.add('hidden');
+            if (nightClockInterval) clearInterval(nightClockInterval);
+
+            if (document.exitFullscreen && document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        function toggleNightstandDim() {
+            const modal = document.getElementById('nightstand-modal');
+            const dimBtnTxt = document.getElementById('dim-btn-txt');
+            isDimmed = !isDimmed;
+
+            if (isDimmed) {
+                modal.style.opacity = '0.25';
+                dimBtnTxt.innerText = 'زيادة الإضاءة';
+            } else {
+                modal.style.opacity = '1';
+                dimBtnTxt.innerText = 'تعتيم الشاشة';
+            }
+        }
+
+        // Double click inside nightstand modal to exit easily
+        document.getElementById('nightstand-modal').addEventListener('dblclick', closeNightStand);
+    </script>
+</body>
+</html>
